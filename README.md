@@ -1,5 +1,7 @@
 # Grievance Redressal Web Application
 
+![Demo Video](.github/assets/demo.webp)
+
 A full-stack grievance redressal portal built using:
 - HTML, CSS, JavaScript
 - React (frontend)
