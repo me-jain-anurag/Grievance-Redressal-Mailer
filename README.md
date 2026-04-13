@@ -10,10 +10,11 @@ A full-stack grievance redressal portal built using:
 - Nodemailer (email routing)
 
 ## Features
-- Grievance submission form with validation.
+- Public grievance submission form with optional anonymous mode.
+- Ticket tracking using ticket id and tracking token.
+- Simple admin panel for moving tickets from Submitted to Processing to Solved.
 - Category-based routing to respective mailing lists.
 - Complaint records stored in SQLite database.
-- API health check and grievance listing endpoints.
 
 ## Project Structure
 - `client/` React frontend
@@ -27,6 +28,7 @@ A full-stack grievance redressal portal built using:
 Recommended (Gmail OAuth2) example:
 ```env
 PORT=5000
+ADMIN_PORTAL_KEY=change_this_admin_key
 SMTP_OAUTH_PROVIDER=gmail
 SMTP_USER=your_gmail@gmail.com
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
@@ -81,5 +83,8 @@ Then open the frontend URL shown by Vite (default: `http://localhost:5173`).
 
 ## API Endpoints
 - `GET /api/health` Health check.
-- `GET /api/grievances` List grievances.
 - `POST /api/grievances` Create grievance and trigger email routing.
+- `GET /api/dashboard` Public summary counts.
+- `GET /api/track/:id?token=...` Track one ticket.
+- `GET /api/admin/grievances` Admin ticket list.
+- `PATCH /api/admin/grievances/:id` Admin status update.
