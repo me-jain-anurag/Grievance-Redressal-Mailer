@@ -2,22 +2,15 @@
   --text: #1b2f3f;
   --muted: #4f6474;
   --label: #223b4d;
-  --bg: #f2f7fb;
+  --bg: #e7edf2;
   --card-bg: #fff;
   --card-border: #d8e4ef;
-  --input-bg: #fbfdff;
+  --input-bg: #ffffff;
   --input-border: #bfd0df;
-  --focus-ring: rgba(40, 124, 185, 0.3);
+  --focus-ring: rgba(95, 130, 154, 0.35);
   --code-bg: #edf3f8;
 
-  --hero-a: #124f75;
-  --hero-b: #1f7b89;
-  --hero-text: #f6fcff;
-
-  --btn-a: #ca5a2e;
-  --btn-b: #9f3f2f;
-
-  font-family: 'Segoe UI', 'Trebuchet MS', Verdana, sans-serif;
+  font-family: Tahoma, Verdana, 'Segoe UI', sans-serif;
   line-height: 1.45;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,11 +25,9 @@
 body {
   margin: 0;
   color: var(--text);
-  background:
-    radial-gradient(circle at 20% 15%, rgba(90, 160, 209, 0.2), transparent 40%),
-    radial-gradient(circle at 90% 10%, rgba(184, 108, 78, 0.18), transparent 36%),
-    var(--bg);
+  background: var(--bg);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 h1,

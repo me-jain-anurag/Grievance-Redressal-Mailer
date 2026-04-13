@@ -1,143 +1,315 @@
 .page-shell {
-  width: min(1000px, 92vw);
-  margin: 42px auto;
-  display: grid;
-  gap: 20px;
+  width: min(1100px, 96vw);
+  margin: 18px auto 28px;
 }
 
 .hero {
-  padding: 28px;
-  border-radius: 18px;
-  background: linear-gradient(140deg, var(--hero-a), var(--hero-b));
-  color: var(--hero-text);
-  box-shadow: 0 14px 30px rgba(35, 54, 88, 0.16);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 1px solid #9fb0bd;
+  background: #dbe7f0;
 }
 
-.kicker {
+.hero-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.kicker,
+.section-kicker {
   margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.8rem;
-  opacity: 0.85;
+  color: #415767;
 }
 
 .hero h1 {
-  margin: 8px 0;
+  margin: 0;
+  font-size: 2rem;
   line-height: 1.15;
-  color: inherit;
+  color: #1f3442;
 }
 
 .subtitle {
   margin: 0;
   max-width: 60ch;
+  color: #425a6c;
+}
+
+.hero-panel {
+  padding: 14px;
+  border: 1px solid #aab9c4;
+  background: #f5f8fb;
+}
+
+.hero-panel-label {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475e6d;
+}
+
+.hero-panel strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 2rem;
+  color: #233948;
+}
+
+.hero-progress,
+.progress-track {
+  height: 12px;
+  border: 1px solid #9cb0bf;
+  background: #eef3f7;
+}
+
+.hero-progress span,
+.progress-track span {
+  display: block;
+  height: 100%;
+  background: #4e7ea3;
+}
+
+.hero-panel-meta,
+.inline-error {
+  margin-top: 10px;
+  color: #536b7b;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-card,
+.card {
+  border: 1px solid #aab9c4;
+  background: #ffffff;
+}
+
+.stat-card {
+  padding: 14px;
+}
+
+.stat-card p {
+  margin: 0 0 8px;
+  color: #536978;
+  font-size: 0.92rem;
+}
+
+.stat-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+  color: #203645;
+}
+
+.stat-card span {
+  color: #5d7281;
+  font-size: 0.88rem;
 }
 
 .content-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.main-column,
+.side-column {
+  display: grid;
+  gap: 16px;
 }
 
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 8px 20px rgba(31, 42, 55, 0.07);
+  padding: 16px;
 }
 
-.card h2 {
-  margin-top: 0;
+.section-head {
+  margin-bottom: 14px;
 }
 
-.grievance-form {
+.section-head h2 {
+  margin: 4px 0 0;
+  font-size: 1.3rem;
+  color: #1f3442;
+}
+
+.grievance-form,
+.track-form,
+.admin-login {
   display: grid;
   gap: 12px;
 }
 
-.grievance-form label {
+.grievance-form label,
+.track-form label,
+.admin-login label {
   display: grid;
   gap: 6px;
-  font-weight: 600;
-  color: var(--label);
+  color: #223847;
+  font-weight: 700;
+}
+
+.checkbox-row {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #b8c7d2;
+  background: #eef4f8;
+}
+
+.checkbox-row input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.anonymous-note,
+.tracking-box,
+.tracked-ticket,
+.admin-ticket {
+  padding: 12px;
+  border: 1px solid #c8d0db;
+  background: #f7f9fb;
+}
+
+.tracking-box,
+.tracked-ticket,
+.admin-ticket {
+  margin-top: 14px;
+}
+
+.tracking-box h3,
+.tracked-ticket h3,
+.admin-ticket h3 {
+  margin: 0 0 10px;
+  color: #223847;
+}
+
+.tracking-box p,
+.tracked-ticket p,
+.admin-ticket p,
+.flow-list {
+  margin: 0;
+}
+
+.tracked-ticket .progress-track {
+  margin-top: 10px;
 }
 
 .grievance-form input,
 .grievance-form select,
-.grievance-form textarea {
+.grievance-form textarea,
+.track-form input,
+.admin-login input,
+.admin-actions select {
   width: 100%;
-  border: 1px solid var(--input-border);
-  border-radius: 10px;
   padding: 10px 12px;
+  border: 1px solid #aebfcb;
+  background: #fff;
+  color: #223847;
   font: inherit;
-  color: var(--text);
-  background: var(--input-bg);
-  box-sizing: border-box;
 }
 
 .grievance-form input:focus,
 .grievance-form select:focus,
-.grievance-form textarea:focus {
-  outline: 3px solid var(--focus-ring);
-  border-color: transparent;
+.grievance-form textarea:focus,
+.track-form input:focus,
+.admin-login input:focus,
+.admin-actions select:focus {
+  outline: 2px solid #7c9bb1;
+  outline-offset: 0;
 }
 
-.grievance-form button {
-  border: 0;
-  border-radius: 12px;
-  padding: 12px 16px;
+.grievance-form button,
+.track-form button,
+.admin-login button,
+.admin-actions button {
+  padding: 11px 14px;
+  border: 1px solid #8c5e36;
+  background: #b7713f;
+  color: #fff;
   font: inherit;
   font-weight: 700;
-  color: #fff;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--btn-a), var(--btn-b));
 }
 
-.grievance-form button:disabled {
+.grievance-form button:disabled,
+.track-form button:disabled,
+.admin-login button:disabled,
+.admin-actions button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
 .status {
-  margin: 14px 0 0;
-  border-radius: 10px;
+  margin-top: 14px;
   padding: 12px;
+  border: 1px solid #bfcbd4;
 }
 
 .status.success {
-  background: #e7f6ee;
-  color: #1d6a46;
+  background: #e8f3e8;
+  color: #215936;
 }
 
 .status.error {
-  background: #ffe9ea;
-  color: #8e2830;
+  background: #fdeeee;
+  color: #8a2d35;
 }
 
-.info-card ol {
-  margin: 0;
+.flow-list {
   padding-left: 18px;
+}
+
+.flow-list li + li {
+  margin-top: 8px;
+}
+
+.admin-ticket-list {
   display: grid;
-  gap: 8px;
-}
-
-.api-note {
+  gap: 12px;
   margin-top: 14px;
-  color: var(--muted);
 }
 
-.api-note code {
-  background: var(--code-bg);
-  padding: 2px 6px;
-  border-radius: 6px;
+.admin-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 @media (max-width: 900px) {
+  .hero,
+  .content-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
   .page-shell {
-    margin: 20px auto;
+    width: 94vw;
+    margin: 10px auto 22px;
   }
 
-  .content-grid {
+  .hero,
+  .card,
+  .stat-card {
+    padding: 12px;
+  }
+
+  .admin-actions {
     grid-template-columns: 1fr;
   }
 }
