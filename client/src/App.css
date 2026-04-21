@@ -162,16 +162,24 @@
 .checkbox-row {
   display: flex !important;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 12px;
   border: 1px solid #b8c7d2;
   background: #eef4f8;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .checkbox-row input {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
   margin: 0;
+}
+
+.checkbox-row span {
+  flex: 1;
+  line-height: 1.35;
 }
 
 .anonymous-note,
@@ -207,7 +215,7 @@
   margin-top: 10px;
 }
 
-.grievance-form input,
+.grievance-form input:not([type='checkbox']),
 .grievance-form select,
 .grievance-form textarea,
 .track-form input,
