@@ -226,6 +226,17 @@ function buildMailBody(grievance, id) {
   ].join('\n');
 }
 
+function sendGrievanceMail(transporter, grievance, grievanceId, recipients) {
+  const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || 'no-reply@grievance.local';
+
+  return transporter.sendMail({
+    from: fromAddress,
+    to: recipients.join(','),
+    subject: `[Grievance #${grievanceId}] ${grievance.subject}`,
+    text: buildMailBody(grievance, grievanceId),
+  });
+}
+
 function formatGrievanceRow(row) {
   const status = normalizeStatus(row.status);
 
@@ -462,25 +473,22 @@ async function bootstrap() {
 
       const grievanceId = result.lastID;
       const recipients = resolveRecipients(grievance.category);
-      let mailWarning = '';
 
       if (recipients.length > 0) {
-        const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || 'no-reply@grievance.local';
-        try {
-          const info = await transporter.sendMail({
-            from: fromAddress,
-            to: recipients.join(','),
-            subject: `[Grievance #${grievanceId}] ${grievance.subject}`,
-            text: buildMailBody(grievance, grievanceId),
+        void Promise.race([
+          sendGrievanceMail(transporter, grievance, grievanceId, recipients),
+          new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Mail delivery timed out after 20 seconds.')), 20_000);
+          }),
+        ])
+          .then((info) => {
+            if (info && info.message) {
+              console.log('Mail payload:', info.message);
+            }
+          })
+          .catch((mailError) => {
+            console.error(`Failed to send grievance email for ticket #${grievanceId}:`, mailError);
           });
-
-          if (info && info.message) {
-            console.log('Mail payload:', info.message);
-          }
-        } catch (mailError) {
-          mailWarning = mailError.message;
-          console.error(`Failed to send grievance email for ticket #${grievanceId}:`, mailError);
-        }
       } else {
         console.warn(`No recipients configured for category "${grievance.category}" and MAIL_DEFAULT is empty.`);
       }
@@ -488,7 +496,6 @@ async function bootstrap() {
       return res.status(201).json({
         id: grievanceId,
         message: 'Grievance submitted successfully.',
-        mailWarning,
         recipients,
         anonymous: grievance.isAnonymous,
         status: 'Submitted',
