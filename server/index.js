@@ -1,4 +1,5 @@
 require('dotenv').config();
+const dns = require('dns');
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
@@ -12,6 +13,8 @@ const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 const clientIndexPath = path.join(clientDistPath, 'index.html');
+
+dns.setDefaultResultOrder('ipv4first');
 
 app.use(cors());
 app.use(express.json());
@@ -105,6 +108,7 @@ async function createTransporter() {
 
     return nodemailer.createTransport({
       service: 'gmail',
+      family: 4,
       auth: {
         type: 'OAuth2',
         user: process.env.SMTP_USER,
@@ -120,6 +124,7 @@ async function createTransporter() {
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
       secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
+      family: 4,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
