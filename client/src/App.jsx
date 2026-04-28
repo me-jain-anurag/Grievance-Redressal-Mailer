@@ -136,18 +136,24 @@ function App() {
         body: JSON.stringify(formData),
       })
 
+      const ticketId = data.id
+      const trackingToken = data.trackingToken
+      const nextStatus = data.status || 'Submitted'
+
       setSubmitStatus({
         type: 'success',
-        text: `Ticket #${data.id} raised successfully. Save the tracking token shown below.`,
+        text: data.mailWarning
+          ? `Ticket #${ticketId} raised successfully, but email delivery failed (${data.mailWarning}). Save the tracking token shown below.`
+          : `Ticket #${ticketId} raised successfully. Save the tracking token shown below.`,
       })
       setLastSubmittedTicket({
-        id: data.id,
-        trackingToken: data.trackingToken,
-        status: data.status,
+        id: ticketId,
+        trackingToken,
+        status: nextStatus,
       })
       setTrackForm({
-        ticketId: String(data.id),
-        trackingToken: data.trackingToken,
+        ticketId: String(ticketId),
+        trackingToken,
       })
       setFormData(initialFormData)
       await loadDashboard()
@@ -199,7 +205,7 @@ function App() {
           </p>
         </div>
 
-        
+
       </header>
 
       <main className="content-grid">
