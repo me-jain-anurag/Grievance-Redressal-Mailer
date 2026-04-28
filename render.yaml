@@ -6,7 +6,7 @@ services:
     buildCommand: |
       cd client && npm ci && VITE_API_BASE_URL=/api npm run build
       cd ../server && npm ci && npm rebuild sqlite3 --build-from-source || true
-    startCommand: cd server && npm ci --omit=dev && npm rebuild sqlite3 --build-from-source || true && npm start
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_VERSION
         value: 22
