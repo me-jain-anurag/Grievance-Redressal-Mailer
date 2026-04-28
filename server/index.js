@@ -316,6 +316,16 @@ async function bootstrap() {
   const db = await initDb();
   const transporter = await createTransporter();
 
+  if (!transporter.options?.jsonTransport) {
+    try {
+      await transporter.verify();
+      console.log('SMTP transport verified successfully.');
+    } catch (err) {
+      console.warn('SMTP transport verification failed. Ticket creation will still work, but email delivery may fail.');
+      console.warn(err.message);
+    }
+  }
+
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, service: 'grievance-backend' });
   });
