@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { apiRequest } from './api.js'
 import './App.css'
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const adminStatuses = ['Submitted', 'Processing', 'Solved']
 
 const defaultDashboard = {
@@ -50,12 +49,7 @@ function AdminPage() {
     async function loadDashboard() {
         try {
             setDashboardError('')
-            const response = await fetch(`${apiBaseUrl}/api/dashboard`)
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to load dashboard.')
-            }
+            const data = await apiRequest('/dashboard')
 
             setDashboard({
                 summary: { ...defaultDashboard.summary, ...(data.summary || {}) },
@@ -76,16 +70,11 @@ function AdminPage() {
         setIsLoadingAdmin(true)
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/admin/grievances`, {
+            const data = await apiRequest('/admin/grievances', {
                 headers: {
                     'x-admin-key': adminKey,
                 },
             })
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to load admin tickets.')
-            }
 
             setAdminTickets(data)
             setAdminStatus({ type: 'success', text: 'Admin tickets loaded.' })
@@ -115,7 +104,7 @@ function AdminPage() {
         setAdminStatus({ type: '', text: '' })
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/admin/grievances/${ticketId}`, {
+            const data = await apiRequest(`/admin/grievances/${ticketId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -123,11 +112,6 @@ function AdminPage() {
                 },
                 body: JSON.stringify({ status, remarks }),
             })
-            const data = await response.json()
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to update ticket.')
-            }
 
             setAdminTickets((prev) =>
                 prev.map((ticket) => (ticket.id === ticketId ? data : ticket))

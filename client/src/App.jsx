@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { apiRequest } from './api.js'
 import './App.css'
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 
 const defaultDashboard = {
   summary: {
@@ -82,12 +81,7 @@ function App() {
   async function loadDashboard() {
     try {
       setDashboardError('')
-      const response = await fetch(`${apiBaseUrl}/api/dashboard`)
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to load dashboard.')
-      }
+      const data = await apiRequest('/dashboard')
 
       setDashboard({
         summary: { ...defaultDashboard.summary, ...(data.summary || {}) },
@@ -134,19 +128,13 @@ function App() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/grievances`, {
+      const data = await apiRequest('/grievances', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit grievance.')
-      }
 
       setSubmitStatus({
         type: 'success',
@@ -177,14 +165,7 @@ function App() {
     setIsTracking(true)
 
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/api/track/${trackForm.ticketId}?token=${encodeURIComponent(trackForm.trackingToken)}`
-      )
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Unable to track ticket.')
-      }
+      const data = await apiRequest(`/track/${trackForm.ticketId}?token=${encodeURIComponent(trackForm.trackingToken)}`)
 
       setTrackedTicket(data)
       setTrackStatus({ type: 'success', text: 'Ticket found.' })
