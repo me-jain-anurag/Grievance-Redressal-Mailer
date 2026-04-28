@@ -3,6 +3,40 @@
   margin: 18px auto 28px;
 }
 
+.top-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #9fb0bd;
+  background: #f3f7fa;
+  color: #284050;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.nav-link-active {
+  border-color: #4e7ea3;
+  background: #d8e7f3;
+}
+
+.inline-admin-link {
+  color: #1f5175;
+  font-weight: 700;
+}
+
+.admin-page-shell {
+  width: min(980px, 96vw);
+}
+
+.admin-hero {
+  grid-template-columns: 1fr;
+}
+
 .hero {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -123,10 +157,18 @@
   align-items: start;
 }
 
+.admin-content-grid {
+  grid-template-columns: 1fr;
+}
+
 .main-column,
 .side-column {
   display: grid;
   gap: 16px;
+}
+
+.admin-content-grid .main-column {
+  width: 100%;
 }
 
 .card {
@@ -220,7 +262,8 @@
 .grievance-form textarea,
 .track-form input,
 .admin-login input,
-.admin-actions select {
+.admin-actions select,
+.admin-remarks-field textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #aebfcb;
@@ -234,9 +277,15 @@
 .grievance-form textarea:focus,
 .track-form input:focus,
 .admin-login input:focus,
-.admin-actions select:focus {
+.admin-actions select:focus,
+.admin-remarks-field textarea:focus {
   outline: 2px solid #7c9bb1;
   outline-offset: 0;
+}
+
+.admin-remarks-field textarea {
+  min-height: 96px;
+  resize: vertical;
 }
 
 .grievance-form button,
@@ -280,7 +329,7 @@
   padding-left: 18px;
 }
 
-.flow-list li + li {
+.flow-list li+li {
   margin-top: 8px;
 }
 
@@ -298,6 +347,7 @@
 }
 
 @media (max-width: 900px) {
+
   .hero,
   .content-grid,
   .stats-grid {

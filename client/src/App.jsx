@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import './App.css'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
@@ -50,8 +51,6 @@ const departments = [
   'Other',
 ]
 
-const adminStatuses = ['Submitted', 'Processing', 'Solved']
-
 function formatDate(value) {
   if (!value) return 'Just now'
 
@@ -79,12 +78,6 @@ function App() {
   const [trackedTicket, setTrackedTicket] = useState(null)
   const [trackStatus, setTrackStatus] = useState({ type: '', text: '' })
   const [isTracking, setIsTracking] = useState(false)
-
-  const [adminKey, setAdminKey] = useState('')
-  const [adminTickets, setAdminTickets] = useState([])
-  const [adminStatus, setAdminStatus] = useState({ type: '', text: '' })
-  const [isLoadingAdmin, setIsLoadingAdmin] = useState(false)
-  const [updatingTicketId, setUpdatingTicketId] = useState(null)
 
   async function loadDashboard() {
     try {
@@ -202,69 +195,6 @@ function App() {
     }
   }
 
-  async function loadAdminTickets() {
-    setAdminStatus({ type: '', text: '' })
-    setIsLoadingAdmin(true)
-
-    try {
-      const response = await fetch(`${apiBaseUrl}/api/admin/grievances`, {
-        headers: {
-          'x-admin-key': adminKey,
-        },
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to load admin tickets.')
-      }
-
-      setAdminTickets(data)
-      setAdminStatus({ type: 'success', text: 'Admin tickets loaded.' })
-    } catch (error) {
-      setAdminTickets([])
-      setAdminStatus({ type: 'error', text: error.message })
-    } finally {
-      setIsLoadingAdmin(false)
-    }
-  }
-
-  function handleAdminTicketStatusChange(ticketId, value) {
-    setAdminTickets((prev) =>
-      prev.map((ticket) => (ticket.id === ticketId ? { ...ticket, status: value } : ticket))
-    )
-  }
-
-  async function handleAdminUpdate(ticketId, status) {
-    setUpdatingTicketId(ticketId)
-    setAdminStatus({ type: '', text: '' })
-
-    try {
-      const response = await fetch(`${apiBaseUrl}/api/admin/grievances/${ticketId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-key': adminKey,
-        },
-        body: JSON.stringify({ status }),
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update ticket.')
-      }
-
-      setAdminTickets((prev) =>
-        prev.map((ticket) => (ticket.id === ticketId ? data : ticket))
-      )
-      setAdminStatus({ type: 'success', text: `Ticket #${ticketId} updated to ${data.status}.` })
-      await loadDashboard()
-    } catch (error) {
-      setAdminStatus({ type: 'error', text: error.message })
-    } finally {
-      setUpdatingTicketId(null)
-    }
-  }
-
   const statCards = [
     { label: 'Total Tickets', value: dashboard.summary.total, detail: 'All grievances raised' },
     { label: 'Submitted', value: dashboard.summary.submitted, detail: 'Waiting for staff action' },
@@ -274,42 +204,22 @@ function App() {
 
   return (
     <div className="page-shell">
+      <nav className="top-nav" aria-label="Portal navigation">
+        <Link to="/" className="nav-link nav-link-active">Student Portal</Link>
+        <Link to="/admin" className="nav-link">Admin Login</Link>
+      </nav>
+
       <header className="hero">
         <div className="hero-copy">
           <p className="kicker">Grievance Portal</p>
-          <h1>Submit, track, and manage grievance tickets</h1>
+          <h1>Submit and track grievance tickets</h1>
           <p className="subtitle">
-            Students raise tickets here, students track tickets with an id and tracking token,
-            and staff move tickets from submitted to processing to solved.
+            Students can raise tickets and track tickets with an id and tracking token here.
           </p>
         </div>
 
-        <div className="hero-panel">
-          <p className="hero-panel-label">Overall Progress</p>
-          <strong>
-            {isLoadingDashboard ? '...' : `${dashboard.summary.progressAverage}%`}
-          </strong>
-          <div className="hero-progress" aria-hidden="true">
-            <span style={{ width: `${dashboard.summary.progressAverage}%` }} />
-          </div>
-          <p className="hero-panel-meta">
-            Resolution rate: {dashboard.summary.resolutionRate}%
-          </p>
-          {dashboardError && (
-            <p className="inline-error">{dashboardError}</p>
-          )}
-        </div>
+        
       </header>
-
-      <section className="stats-grid" aria-label="Ticket summary">
-        {statCards.map((card) => (
-          <article key={card.label} className="stat-card">
-            <p>{card.label}</p>
-            <strong>{card.value}</strong>
-            <span>{card.detail}</span>
-          </article>
-        ))}
-      </section>
 
       <main className="content-grid">
         <section className="main-column">
@@ -446,7 +356,23 @@ function App() {
               </div>
             )}
           </article>
+        </section>
 
+        <aside className="side-column">
+          <section className="card">
+            <div className="section-head">
+              <div>
+                <p className="section-kicker">Admin Access</p>
+                <h2>Separate admin login page</h2>
+              </div>
+            </div>
+            <p className="subtitle">
+              Staff tools are separate from student actions. Open the dedicated admin page to log in.
+            </p>
+            <p>
+              <Link to="/admin" className="inline-admin-link">Go to Admin Login</Link>
+            </p>
+          </section>
           <article className="card">
             <div className="section-head">
               <div>
@@ -496,97 +422,15 @@ function App() {
                 <p><strong>Status:</strong> {trackedTicket.status}</p>
                 <p><strong>Progress:</strong> {trackedTicket.progress}%</p>
                 <p><strong>Raised On:</strong> {formatDate(trackedTicket.createdAt)}</p>
+                {trackedTicket.remarks && (
+                  <p><strong>Remarks:</strong> {trackedTicket.remarks}</p>
+                )}
                 <div className="progress-track" aria-hidden="true">
                   <span style={{ width: `${trackedTicket.progress}%` }} />
                 </div>
               </div>
             )}
           </article>
-        </section>
-
-        <aside className="side-column">
-          <section className="card">
-            <div className="section-head">
-              <div>
-                <p className="section-kicker">Portal Flow</p>
-                <h2>How the website works</h2>
-              </div>
-            </div>
-
-            <ol className="flow-list">
-              <li>A student submits a grievance and gets a ticket id plus tracking token.</li>
-              <li>The backend stores the grievance and routes the email by ticket type.</li>
-              <li>The student uses ticket id plus token to check the current status later.</li>
-              <li>Staff opens the admin panel and moves the ticket to Processing or Solved.</li>
-              <li>The public dashboard shows only safe summary counts, not private ticket details.</li>
-            </ol>
-          </section>
-
-          <section className="card">
-            <div className="section-head">
-              <div>
-                <p className="section-kicker">Admin Access</p>
-                <h2>Staff status update</h2>
-              </div>
-            </div>
-
-            <div className="admin-login">
-              <label>
-                Admin Key
-                <input
-                  type="password"
-                  value={adminKey}
-                  onChange={(event) => setAdminKey(event.target.value)}
-                  placeholder="Enter admin key"
-                />
-              </label>
-
-              <button type="button" onClick={loadAdminTickets} disabled={isLoadingAdmin || !adminKey.trim()}>
-                {isLoadingAdmin ? 'Loading...' : 'Open Admin Panel'}
-              </button>
-            </div>
-
-            {adminStatus.text && (
-              <p className={`status ${adminStatus.type}`} role="status">
-                {adminStatus.text}
-              </p>
-            )}
-
-            {adminTickets.length > 0 && (
-              <div className="admin-ticket-list">
-                {adminTickets.map((ticket) => (
-                  <article key={ticket.id} className="admin-ticket">
-                    <h3>#{ticket.id} {ticket.subject}</h3>
-                    <p><strong>Reporter:</strong> {ticket.anonymous ? 'Anonymous' : ticket.name}</p>
-                    <p><strong>Department:</strong> {ticket.department}</p>
-                    <p><strong>Type:</strong> {ticket.category}</p>
-                    <p><strong>Current Status:</strong> {ticket.status}</p>
-                    <p><strong>Message:</strong> {ticket.message}</p>
-                    <div className="admin-actions">
-                      <select
-                        value={ticket.status}
-                        onChange={(event) => handleAdminTicketStatusChange(ticket.id, event.target.value)}
-                      >
-                        {adminStatuses.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </select>
-
-                      <button
-                        type="button"
-                        onClick={() => handleAdminUpdate(ticket.id, ticket.status)}
-                        disabled={updatingTicketId === ticket.id}
-                      >
-                        {updatingTicketId === ticket.id ? 'Saving...' : 'Update'}
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
         </aside>
       </main>
     </div>
