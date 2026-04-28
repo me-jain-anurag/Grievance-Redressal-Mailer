@@ -492,8 +492,8 @@ async function bootstrap() {
     });
   }
 
-  app.listen(PORT, () => {
-    console.log(`Grievance backend running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Grievance backend running and listening on 0.0.0.0:${PORT}`);
   });
 }
 
