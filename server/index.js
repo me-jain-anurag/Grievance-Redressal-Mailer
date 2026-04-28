@@ -447,18 +447,24 @@ async function bootstrap() {
 
       const grievanceId = result.lastID;
       const recipients = resolveRecipients(grievance.category);
+      let mailWarning = '';
 
       if (recipients.length > 0) {
         const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || 'no-reply@grievance.local';
-        const info = await transporter.sendMail({
-          from: fromAddress,
-          to: recipients.join(','),
-          subject: `[Grievance #${grievanceId}] ${grievance.subject}`,
-          text: buildMailBody(grievance, grievanceId),
-        });
+        try {
+          const info = await transporter.sendMail({
+            from: fromAddress,
+            to: recipients.join(','),
+            subject: `[Grievance #${grievanceId}] ${grievance.subject}`,
+            text: buildMailBody(grievance, grievanceId),
+          });
 
-        if (info && info.message) {
-          console.log('Mail payload:', info.message);
+          if (info && info.message) {
+            console.log('Mail payload:', info.message);
+          }
+        } catch (mailError) {
+          mailWarning = mailError.message;
+          console.error(`Failed to send grievance email for ticket #${grievanceId}:`, mailError);
         }
       } else {
         console.warn(`No recipients configured for category "${grievance.category}" and MAIL_DEFAULT is empty.`);
@@ -467,6 +473,7 @@ async function bootstrap() {
       return res.status(201).json({
         id: grievanceId,
         message: 'Grievance submitted successfully.',
+        mailWarning,
         recipients,
         anonymous: grievance.isAnonymous,
         status: 'Submitted',
