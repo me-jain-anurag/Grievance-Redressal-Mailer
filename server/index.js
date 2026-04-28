@@ -5,12 +5,20 @@ const nodemailer = require('nodemailer');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
+const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
+const clientIndexPath = path.join(clientDistPath, 'index.html');
 
 app.use(cors());
 app.use(express.json());
+
+if (fs.existsSync(clientIndexPath)) {
+  app.use(express.static(clientDistPath));
+}
 
 function parseEmailList(raw) {
   if (!raw) return [];
@@ -473,6 +481,16 @@ async function bootstrap() {
       });
     }
   });
+
+  if (fs.existsSync(clientIndexPath)) {
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return next();
+      }
+
+      return res.sendFile(clientIndexPath);
+    });
+  }
 
   app.listen(PORT, () => {
     console.log(`Grievance backend running on http://localhost:${PORT}`);
