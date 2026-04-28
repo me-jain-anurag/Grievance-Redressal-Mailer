@@ -141,6 +141,7 @@ async function initDb() {
       message TEXT NOT NULL,
       is_anonymous INTEGER DEFAULT 0,
       tracking_token TEXT,
+      remarks TEXT DEFAULT '',
       status TEXT DEFAULT 'Submitted',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -149,6 +150,7 @@ async function initDb() {
   const columns = await db.all('PRAGMA table_info(grievances)');
   const hasAnonymousColumn = columns.some((column) => column.name === 'is_anonymous');
   const hasTrackingTokenColumn = columns.some((column) => column.name === 'tracking_token');
+  const hasRemarksColumn = columns.some((column) => column.name === 'remarks');
 
   if (!hasAnonymousColumn) {
     await db.exec('ALTER TABLE grievances ADD COLUMN is_anonymous INTEGER DEFAULT 0');
@@ -156,6 +158,10 @@ async function initDb() {
 
   if (!hasTrackingTokenColumn) {
     await db.exec('ALTER TABLE grievances ADD COLUMN tracking_token TEXT');
+  }
+
+  if (!hasRemarksColumn) {
+    await db.exec("ALTER TABLE grievances ADD COLUMN remarks TEXT DEFAULT ''");
   }
 
   const rowsMissingToken = await db.all('SELECT id FROM grievances WHERE tracking_token IS NULL OR tracking_token = ""');
@@ -220,6 +226,7 @@ function formatGrievanceRow(row) {
     progress: getProgressValue(status),
     anonymous: Boolean(row.is_anonymous),
     createdAt: row.created_at,
+    remarks: row.remarks || '',
   };
 }
 
@@ -239,6 +246,7 @@ function formatAdminGrievanceRow(row) {
     progress: getProgressValue(status),
     anonymous: Boolean(row.is_anonymous),
     createdAt: row.created_at,
+    remarks: row.remarks || '',
   };
 }
 
@@ -287,6 +295,7 @@ function formatTrackedTicket(row) {
     progress: getProgressValue(status),
     anonymous: Boolean(row.is_anonymous),
     createdAt: row.created_at,
+    remarks: row.remarks || '',
   };
 }
 
@@ -300,7 +309,7 @@ async function bootstrap() {
 
   app.get('/api/grievances', requireAdmin, async (_req, res) => {
     const rows = await db.all(
-      `SELECT id, name, email, phone, department, category, subject, message, status, is_anonymous, created_at
+      `SELECT id, name, email, phone, department, category, subject, message, remarks, status, is_anonymous, created_at
        FROM grievances
        ORDER BY id DESC`
     );
@@ -309,7 +318,7 @@ async function bootstrap() {
 
   app.get('/api/dashboard', async (_req, res) => {
     const rows = await db.all(
-      `SELECT id, name, department, category, subject, status, is_anonymous, created_at
+      `SELECT id, name, department, category, subject, remarks, status, is_anonymous, created_at
        FROM grievances
        ORDER BY id DESC`
     );
@@ -326,7 +335,7 @@ async function bootstrap() {
     }
 
     const row = await db.get(
-      `SELECT id, subject, category, department, status, is_anonymous, created_at
+      `SELECT id, subject, category, department, remarks, status, is_anonymous, created_at
        FROM grievances
        WHERE id = ? AND tracking_token = ?`,
       ticketId,
@@ -342,7 +351,7 @@ async function bootstrap() {
 
   app.get('/api/admin/grievances', requireAdmin, async (_req, res) => {
     const rows = await db.all(
-      `SELECT id, name, email, phone, department, category, subject, message, status, is_anonymous, created_at
+      `SELECT id, name, email, phone, department, category, subject, message, remarks, status, is_anonymous, created_at
        FROM grievances
        ORDER BY id DESC`
     );
@@ -352,7 +361,8 @@ async function bootstrap() {
 
   app.patch('/api/admin/grievances/:id', requireAdmin, async (req, res) => {
     const ticketId = Number(req.params.id);
-    const nextStatus = normalizeStatus(req.body.status);
+    const nextStatus = req.body.status ? normalizeStatus(req.body.status) : null;
+    const nextRemarks = typeof req.body.remarks === 'string' ? req.body.remarks.trim() : null;
 
     if (!ticketId) {
       return res.status(400).json({ error: 'Valid ticket id is required.' });
@@ -363,10 +373,28 @@ async function bootstrap() {
       return res.status(404).json({ error: 'Ticket not found.' });
     }
 
-    await db.run('UPDATE grievances SET status = ? WHERE id = ?', nextStatus, ticketId);
+    const updates = [];
+    const values = [];
+
+    if (nextStatus) {
+      updates.push('status = ?');
+      values.push(nextStatus);
+    }
+
+    if (nextRemarks !== null) {
+      updates.push('remarks = ?');
+      values.push(nextRemarks);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'At least one of status or remarks is required.' });
+    }
+
+    values.push(ticketId);
+    await db.run(`UPDATE grievances SET ${updates.join(', ')} WHERE id = ?`, values);
 
     const updated = await db.get(
-      `SELECT id, name, email, phone, department, category, subject, message, status, is_anonymous, created_at
+      `SELECT id, name, email, phone, department, category, subject, message, remarks, status, is_anonymous, created_at
        FROM grievances
        WHERE id = ?`,
       ticketId
